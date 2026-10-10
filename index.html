@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Stable Signer V3: 4D Superquadric Splatting Is All You Need for Sign Language Production.">
+    <meta name="description" content="Stable Signer V3: 4D Deformable Primitive Splatting Is All You Need for Sign Language Production.">
     <title>Stable Signer V3</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/markdown-it/13.0.1/markdown-it.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
@@ -104,7 +104,7 @@
         <div class="hero-inner">
             <span class="highlight-notice">Bring Every Signer to Life—Stable, Precise, Identity-Faithful, Real-Time, and 4K.</span>
 
-            <h1 class="title">Stable Signer V3: 4D Superquadric Splatting Is All You Need for Sign Language Production</h1>
+            <h1 class="title">Stable Signer V3: 4D Deformable Primitive Splatting Is All You Need for Sign Language Production</h1>
 
             <div class="authors">
                 <a href="https://x.com/SenFang01" class="author-link">Sen Fang</a><sup>1</sup>,
@@ -191,7 +191,7 @@
                         const markdown = await response.text();
                         const element = document.getElementById(section.id);
                         if (element) {
-                            element.innerHTML = md.render(markdown);
+                            element.innerHTML = deferVideoSources(md.render(markdown));
                         }
                     } catch (error) {
                         console.error(`Error loading ${section.file}:`, error);
@@ -205,6 +205,9 @@
 
             addHeaderLinks();
             executeMarkdownScripts();
+            initializeFpsBadges();
+            initializeGtToggle();
+            initializeVisibleVideoPlayback();
 
             document.querySelectorAll('a[href^="#"]').forEach(anchor => {
                 anchor.addEventListener('click', function (e) {
@@ -294,6 +297,273 @@
             });
         }
 
+        function deferVideoSources(html) {
+            const template = document.createElement('template');
+            template.innerHTML = html;
+
+            template.content.querySelectorAll('video').forEach(video => {
+                const directSource = video.getAttribute('src');
+                if (directSource) {
+                    video.dataset.src = directSource;
+                    video.removeAttribute('src');
+                }
+                video.querySelectorAll('source[src]').forEach(source => {
+                    source.dataset.src = source.getAttribute('src');
+                    source.removeAttribute('src');
+                });
+                video.removeAttribute('autoplay');
+                video.setAttribute('preload', 'none');
+            });
+
+            return template.innerHTML;
+        }
+
+        function initializeFpsBadges() {
+            const badges = document.querySelectorAll(".pipeline-speed-badge[data-fps]");
+            const svgNamespace = "http://www.w3.org/2000/svg";
+            const states = [];
+
+            badges.forEach((badge, index) => {
+                const base = Number.parseFloat(badge.dataset.fps);
+                const jitter = Number.parseFloat(badge.dataset.jitter || "0");
+                if (!Number.isFinite(base)) return;
+
+                const range = Math.max(jitter, 0.01);
+                const parent = badge.parentElement;
+                const sparkline = document.createElementNS(svgNamespace, "svg");
+                const line = document.createElementNS(svgNamespace, "polyline");
+                const dot = document.createElementNS(svgNamespace, "ellipse");
+
+                sparkline.classList.add("pipeline-speed-sparkline");
+                sparkline.setAttribute("viewBox", "0 0 100 20");
+                sparkline.setAttribute("preserveAspectRatio", "none");
+                sparkline.setAttribute("aria-hidden", "true");
+                line.classList.add("pipeline-speed-line");
+                dot.classList.add("pipeline-speed-dot");
+                dot.setAttribute("rx", "1.1");
+                dot.setAttribute("ry", "2.8");
+                sparkline.append(line, dot);
+                parent.insertBefore(sparkline, badge);
+
+                const history = Array.from(
+                    { length: 24 },
+                    (_, sampleIndex) => base + Math.sin(sampleIndex * 0.63 + index) * range * 0.12
+                );
+                let current = history[history.length - 1];
+                let velocity = (Math.random() - 0.5) * range * 0.16;
+
+                const render = () => {
+                    const points = history.map((sample, sampleIndex) => {
+                        const x = sampleIndex * (100 / (history.length - 1));
+                        const normalized = (sample - (base - range)) / (range * 2);
+                        const y = 18 - Math.max(0, Math.min(1, normalized)) * 16;
+                        return `${x.toFixed(2)},${y.toFixed(2)}`;
+                    });
+                    const lastPoint = points[points.length - 1].split(",");
+                    badge.textContent = `${current.toFixed(2)} FPS`;
+                    line.setAttribute("points", points.join(" "));
+                    dot.setAttribute("cx", lastPoint[0]);
+                    dot.setAttribute("cy", lastPoint[1]);
+                };
+
+                const tick = () => {
+                    velocity = velocity * 0.64
+                        + (Math.random() - 0.5) * range * 0.42
+                        + (base - current) * 0.08;
+                    if (Math.random() < 0.13) {
+                        velocity += (Math.random() - 0.5) * range * 0.95;
+                    }
+                    current += velocity;
+                    if (current > base + range || current < base - range) {
+                        current = Math.max(base - range, Math.min(base + range, current));
+                        velocity *= -0.45;
+                    }
+                    history.push(current);
+                    history.shift();
+                    render();
+                };
+
+                render();
+                states.push({
+                    tick,
+                    nextUpdate: performance.now() + 100 + index * 45
+                });
+            });
+
+            const scheduleNextBatch = () => {
+                if (document.hidden) {
+                    window.setTimeout(scheduleNextBatch, 800);
+                    return;
+                }
+
+                const now = performance.now();
+                let nextUpdate = Number.POSITIVE_INFINITY;
+                states.forEach((state) => {
+                    if (now >= state.nextUpdate) {
+                        state.tick();
+                        state.nextUpdate = now + 145 + Math.random() * 260;
+                    }
+                    nextUpdate = Math.min(nextUpdate, state.nextUpdate);
+                });
+
+                const delay = Math.max(80, nextUpdate - performance.now());
+                window.setTimeout(scheduleNextBatch, delay);
+            };
+
+            scheduleNextBatch();
+        }
+
+        function initializeGtToggle() {
+            const button = document.querySelector(".pipeline-gt-toggle");
+            const canvas = document.querySelector(".pipeline-demo-scroll");
+            if (!button || !canvas) return;
+
+            button.addEventListener("click", () => {
+                const visible = canvas.classList.toggle("pipeline-show-gt");
+                button.setAttribute("aria-pressed", String(visible));
+                button.querySelector("span").textContent = visible
+                    ? "Hide Source RGB GT"
+                    : "Show Source RGB GT";
+                canvas.querySelectorAll(".pipeline-demo-videos").forEach(group => {
+                    group.dispatchEvent(new CustomEvent("pipeline-videos-changed", {
+                        detail: { showGt: visible }
+                    }));
+                });
+            });
+        }
+
+        function initializeVisibleVideoPlayback() {
+            const groups = Array.from(document.querySelectorAll(
+                ".pipeline-demo-videos, .video-container"
+            ));
+            const groupedVideos = new Set(
+                groups.flatMap(group => Array.from(group.querySelectorAll("video")))
+            );
+
+            // Future standalone result videos get the same lifecycle even
+            // when they are not wrapped by a current page component.
+            document.querySelectorAll(".markdown-section video").forEach(video => {
+                if (!groupedVideos.has(video)) groups.push(video);
+            });
+
+            const states = new WeakMap();
+            const videosIn = group => {
+                const videos = group.matches("video")
+                    ? [group]
+                    : Array.from(group.querySelectorAll("video"));
+                const showGt = Boolean(group.closest(".pipeline-show-gt"));
+                return videos.filter(video =>
+                    showGt || !video.classList.contains("pipeline-gt-video"));
+            };
+
+            const restoreSource = video => {
+                if (video.dataset.src) video.src = video.dataset.src;
+                video.querySelectorAll("source[data-src]").forEach(source => {
+                    source.src = source.dataset.src;
+                });
+                video.preload = "auto";
+                video.load();
+            };
+
+            const pauseVideo = video => {
+                video.pause();
+            };
+
+            const loadAndPlay = group => {
+                const videos = videosIn(group);
+                if (!videos.length) return;
+
+                const state = states.get(group) || { generation: 0, cleanup: null };
+                state.generation += 1;
+                const generation = state.generation;
+                const firstLoad = !state.loaded;
+                if (state.cleanup) state.cleanup();
+                if (firstLoad) {
+                    videos.forEach(restoreSource);
+                    state.loaded = true;
+                } else {
+                    videos.filter(video =>
+                        video.dataset.src && !video.getAttribute("src")
+                    ).forEach(restoreSource);
+                }
+
+                const ready = video =>
+                    video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA;
+                const tryStart = () => {
+                    if (state.generation !== generation || !videos.every(ready)) {
+                        return false;
+                    }
+                    if (firstLoad || state.restartOnNextPlay) {
+                        videos.forEach(video => { video.currentTime = 0; });
+                        state.restartOnNextPlay = false;
+                    }
+                    videos.forEach(video => video.play().catch(() => {}));
+                    return true;
+                };
+                const onCanPlay = () => {
+                    if (tryStart() && state.cleanup) state.cleanup();
+                };
+                state.cleanup = () => {
+                    videos.forEach(video => video.removeEventListener(
+                        "canplay", onCanPlay));
+                    state.cleanup = null;
+                };
+                states.set(group, state);
+
+                if (!tryStart()) {
+                    videos.forEach(video => video.addEventListener(
+                        "canplay", onCanPlay, { passive: true }));
+                }
+            };
+
+            const pauseGroup = group => {
+                const state = states.get(group);
+                if (state) {
+                    state.generation += 1;
+                    if (state.cleanup) state.cleanup();
+                }
+                videosIn(group).forEach(pauseVideo);
+            };
+
+            groups.forEach(group => videosIn(group).forEach(video => {
+                video.autoplay = false;
+                video.preload = "none";
+            }));
+
+            groups.forEach(group => group.addEventListener(
+                "pipeline-videos-changed", event => {
+                    const gtVideos = Array.from(
+                        group.querySelectorAll?.(".pipeline-gt-video") || []);
+                    if (!event.detail?.showGt) {
+                        gtVideos.forEach(video => {
+                            video.pause();
+                            video.removeAttribute("src");
+                            video.preload = "none";
+                            video.load();
+                        });
+                    }
+                    const state = states.get(group);
+                    if (event.detail?.showGt && state) {
+                        state.restartOnNextPlay = true;
+                    }
+                    if (state?.visible) loadAndPlay(group);
+                }
+            ));
+
+            const observer = new IntersectionObserver(entries => {
+                entries.forEach(entry => {
+                    const state = states.get(entry.target) || {
+                        generation: 0, cleanup: null
+                    };
+                    state.visible = entry.isIntersecting;
+                    states.set(entry.target, state);
+                    if (entry.isIntersecting) loadAndPlay(entry.target);
+                    else pauseGroup(entry.target);
+                });
+            }, { rootMargin: "0px", threshold: 0.01 });
+            groups.forEach(group => observer.observe(group));
+        }
+
         function addHeaderLinks() {
             function generateSlug(text) {
                 return text
@@ -326,7 +596,7 @@
             if (typeof CiteButton !== 'undefined') {
                 CiteButton.init({
                     author: 'Sen Fang and Dimitris N. Metaxas',
-                    title: 'Stable Signer V3: 4D Superquadric Splatting Is All You Need for Sign Language Production',
+                    title: 'Stable Signer V3: 4D Deformable Primitive Splatting Is All You Need for Sign Language Production',
                     yearMode: 2026,
                     headerSelector: '.markdown-section h1, .markdown-section h2, .markdown-section h3, .markdown-section h4, .markdown-section h5, .markdown-section h6, .html-section h1, .html-section h2, .html-section h3, .html-section h4, .html-section h5, .html-section h6'
                 });

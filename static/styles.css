@@ -5,6 +5,7 @@
 }
 
 body {
+    min-width: 1540px;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     line-height: 1.6;
     color: #202122;
@@ -141,7 +142,9 @@ body {
 }
 
 .container {
-    max-width: 1000px;
+    width: 1000px;
+    min-width: 1000px;
+    max-width: none;
     margin: 0 auto;
     padding: 10px 20px 40px;
     transition: margin-left 0.6s ease;
@@ -395,6 +398,225 @@ body {
 }
 
 /* Demo section specific styles */
+.pipeline-demo-scroll {
+    width: 1386px;
+    min-width: 1386px;
+    margin: 1.2rem 0 2.5rem 50%;
+    transform: translateX(-50%);
+}
+
+.pipeline-demo-table {
+    width: 1386px;
+    min-width: 1386px;
+    max-width: none;
+    margin: 0 auto;
+    color: #202122;
+}
+
+.pipeline-demo-head,
+.pipeline-demo-videos {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.pipeline-demo-head {
+    align-items: end;
+    margin-bottom: 10px;
+    color: #162441;
+    font-family: 'Linux Libertine','Georgia','Times',serif;
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.22;
+    text-align: center;
+}
+
+.pipeline-demo-head > div {
+    position: relative;
+    display: grid;
+    grid-template-rows: 18px 40px;
+    row-gap: 3px;
+    align-items: center;
+    justify-items: center;
+    align-content: center;
+    height: 72px;
+    padding: 0 8px;
+    box-sizing: border-box;
+}
+
+.pipeline-column-title {
+    display: block;
+    grid-row: 2;
+    grid-column: 1;
+    align-self: center;
+}
+
+.pipeline-speed-badge {
+    position: relative;
+    grid-row: 1;
+    grid-column: 1;
+    align-self: end;
+    justify-self: end;
+    min-width: 58px;
+    padding: 1px 6px;
+    border: 1px solid #e07a7a;
+    border-radius: 999px;
+    color: #c62828;
+    background: #fff5f5;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 9.5px;
+    font-weight: 750;
+    line-height: 1.2;
+    text-align: right;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+.pipeline-speed-sparkline {
+    position: absolute;
+    left: 8px;
+    top: 8px;
+    width: calc(100% - 83px);
+    height: 15px;
+    overflow: visible;
+    pointer-events: none;
+}
+
+.pipeline-speed-line {
+    fill: none;
+    stroke: #d51f2b;
+    stroke-width: 1.35;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+}
+
+.pipeline-speed-dot {
+    fill: #d51f2b;
+}
+/* Keep the five synchronized panels on one fixed-width comparison canvas.
+ * Browser zoom therefore enlarges the actual videos without changing text
+ * wrapping or column placement. Any overflow is handled by the fixed page canvas. */
+.pipeline-demo-head,
+.pipeline-demo-row {
+    min-width: 1386px;
+}
+
+.pipeline-demo-row {
+    margin-bottom: 22px;
+    padding: 10px;
+    border: 1px solid #d8dee8;
+    border-radius: 10px;
+    background: #fff;
+    box-shadow: 0 3px 12px rgba(22, 36, 65, 0.06);
+}
+
+.pipeline-demo-videos video,
+.refiner-placeholder {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    border-radius: 6px;
+    background: #080b12;
+    object-fit: contain;
+}
+
+.refiner-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    border: 1px dashed #8ea1bf;
+    color: #c7d6ee;
+    background: linear-gradient(145deg, #101827, #1d2d49);
+    font-size: 13px;
+    font-weight: 650;
+    line-height: 1.5;
+    text-align: center;
+}
+
+.pipeline-input-box {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+    gap: 9px;
+    margin-top: 10px;
+}
+
+.pipeline-input-box > div {
+    min-width: 0;
+    padding: 9px 12px;
+    border: 1px solid #d5dcea;
+    border-radius: 7px;
+    background: #f7f9fc;
+    color: #26364f;
+    font-size: 13px;
+    line-height: 1.38;
+}
+
+.pipeline-input-box span {
+    display: inline-block;
+    margin-right: 9px;
+    padding: 2px 7px;
+    border-radius: 999px;
+    color: #fff;
+    background: #315b9a;
+    font-size: 0.72em;
+    font-weight: 750;
+    letter-spacing: 0.06em;
+}
+
+/* Optional source-RGB ground truth. The sixth column is removed from layout
+ * until explicitly requested, so the default five-column demo is unchanged. */
+.pipeline-gt-toggle {
+    display: inline-flex;
+    grid-row: 1;
+    grid-column: 1;
+    align-self: end;
+    justify-self: center;
+    align-items: center;
+    padding: 7px 12px;
+    border: 1px solid #b9c7dd;
+    border-radius: 8px;
+    color: #213b67;
+    background: #f7f9fd;
+    box-shadow: 0 2px 7px rgba(22, 36, 65, 0.07);
+    cursor: pointer;
+    font: 700 12px/1.2 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    transition: border-color 140ms ease, background 140ms ease, color 140ms ease;
+}
+
+.pipeline-gt-toggle:hover,
+.pipeline-gt-toggle[aria-pressed="true"] {
+    border-color: #315b9a;
+    color: #fff;
+    background: #315b9a;
+}
+
+.pipeline-gt-column { display: none !important; }
+
+.pipeline-demo-scroll.pipeline-show-gt .pipeline-demo-head,
+.pipeline-demo-scroll.pipeline-show-gt .pipeline-demo-videos {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.pipeline-demo-scroll.pipeline-show-gt .pipeline-demo-head > .pipeline-gt-column { display: grid !important; }
+.pipeline-demo-scroll.pipeline-show-gt .pipeline-demo-videos > .pipeline-gt-column { display: block !important; }
+
+.pipeline-demo-head .pipeline-column-kicker {
+    display: block;
+    grid-row: 1;
+    align-self: end;
+    justify-self: end;
+    padding: 2px 7px;
+    border-radius: 999px;
+    color: #fff;
+    background: #315b9a;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 9px;
+    font-weight: 750;
+    letter-spacing: 0.05em;
+}
+
 .demo-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
