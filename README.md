@@ -1,2 +1,3 @@
-# SignVerse-2M
-SignVerse-2M: A Two-Million-Clip Pose-Native Universe of 55+ Sign Languages
+# Stable Signer V3
+
+Stable Signer V3: 4D Deformable Primitive Splatting Is All You Need for Sign Language Production
