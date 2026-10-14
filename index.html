@@ -70,7 +70,7 @@
                 Results
             </div>
             <div class="nav-items">
-                <a href="#results" class="nav-link">DEMOs</a>
+                <a href="#demos" class="nav-link">DEMOs</a>
             </div>
         </div>
 
@@ -101,6 +101,14 @@
     </nav>
 
     <div class="hero-banner" id="title">
+        <aside class="announcement-banner" id="acl-announcement" aria-label="Project announcement">
+            <p><span class="announcement-emoji" aria-hidden="true">🎉</span>
+                <strong>2026</strong> · <a href="https://stablesigner.github.io/" target="_blank" rel="noopener noreferrer">Stable Signer</a> received an
+                <strong class="announcement-award">ACL 2026 Best Paper Nomination</strong>!
+            </p>
+            <button class="announcement-close" type="button" aria-label="Dismiss announcement" title="Dismiss announcement">&times;</button>
+        </aside>
+        <script src="./static/announcement.js"></script>
         <div class="hero-inner">
             <span class="highlight-notice">Bring Every Signer to Life—Stable, Precise, Identity-Faithful, Real-Time, and 4K.</span>
 
@@ -108,6 +116,7 @@
 
             <div class="authors">
                 <a href="https://x.com/SenFang01" class="author-link">Sen Fang</a><sup>1</sup>,
+                <a href="https://pseudoc18.github.io/" class="author-link">Liwei Che</a><sup>1</sup>,
                 <a href="https://scholar.google.com/citations?user=a7VNhCIAAAAJ" class="author-link">Dimitris N. Metaxas</a><sup>1</sup>
             </div>
 
@@ -119,25 +128,17 @@
 
     <div class="container">
         <div class="links">
-            <a href="https://arxiv.org/abs/2605.01720" class="button" target="_blank" rel="noopener noreferrer">
-                <i class="fas fa-file-pdf"></i> Paper
+            <a class="button" role="link" aria-disabled="true" title="Paper link coming soon">
+                <i class="fas fa-file-pdf" aria-hidden="true"></i> Paper
             </a>
-            <a href="https://huggingface.co/datasets/SignerX/SignVerse-2M/tree/main/dataset" class="button" target="_blank" rel="noopener noreferrer">
-                <i class="fas fa-database"></i> Data Files
+            <a href="https://github.com/SignerX/Stable-Signer-V3" class="button" target="_blank" rel="noopener noreferrer">
+                <i class="fab fa-github" aria-hidden="true"></i> Code
             </a>
-            <a href="https://huggingface.co/datasets/SignerX/SignVerse-2M" class="button" target="_blank" rel="noopener noreferrer">
-                <i class="fas fa-book-open"></i> Dataset README
+            <a href="#demos" class="button">
+                <i class="fas fa-play-circle" aria-hidden="true"></i> Results
             </a>
-            <a href="https://huggingface.co/datasets/SignerX/SignVerse-2M/blob/main/micro_dataset.zip" class="button" target="_blank" rel="noopener noreferrer">
-                <i class="fas fa-file-archive"></i> Micro Dataset
-            </a>
-            <!--
-            <a href="https://github.com/SignerX/SignVerse-2M" class="button" target="_blank" rel="noopener noreferrer">
-                <i class="fab fa-github-square"></i> Benchmark Repo
-            </a>
-            -->
-            <a href="#compatibility-with-modern-pose-renderers" class="button" target="_blank" rel="noopener noreferrer">
-                <i class="fas fa-images"></i> Results Preview
+            <a href="#ablation-studies" class="button">
+                <i class="fas fa-chart-bar" aria-hidden="true"></i> Ablations
             </a>
         </div>
 
@@ -595,7 +596,7 @@
 
             if (typeof CiteButton !== 'undefined') {
                 CiteButton.init({
-                    author: 'Sen Fang and Dimitris N. Metaxas',
+                    author: 'Sen Fang and Liwei Che and Dimitris N. Metaxas',
                     title: 'Stable Signer V3: 4D Deformable Primitive Splatting Is All You Need for Sign Language Production',
                     yearMode: 2026,
                     headerSelector: '.markdown-section h1, .markdown-section h2, .markdown-section h3, .markdown-section h4, .markdown-section h5, .markdown-section h6, .html-section h1, .html-section h2, .html-section h3, .html-section h4, .html-section h5, .html-section h6'

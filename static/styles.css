@@ -783,3 +783,42 @@ footer a:hover {
     display: block;
     text-align: center;
 }
+
+/* Dismissible announcement below the fixed navigation; no video/animation cost. */
+.announcement-banner {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 46px;
+    padding: 10px 64px;
+    box-sizing: border-box;
+    background: #fff6ed;
+    border-bottom: 1px solid #f2dcc7;
+    color: #34302c;
+    text-align: center;
+    font-size: 15px;
+    line-height: 1.6;
+}
+.announcement-banner[hidden] { display: none; }
+.announcement-banner p { margin: 0; }
+.announcement-emoji { margin-right: 8px; }
+.announcement-award { color: #d00000; }
+.announcement-close {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: #65564c;
+    font-size: 25px;
+    line-height: 1;
+    cursor: pointer;
+}
+.announcement-close:hover { background: #f5e5d5; }
+.announcement-close:focus-visible { outline: 2px solid #a54222; outline-offset: 2px; }
